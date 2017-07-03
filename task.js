@@ -3,6 +3,8 @@ function Task(functionToDo,theThis,...argumentsToInnerFunction){
 	/*
 		this function emulates the Task object implemented in Max/MSP javascript
 		so that you can write javascript for use timing events in either browser or Max/MSP platforms
+		
+		for documentation of how the Task object works in Max/MSP, go to https://docs.cycling74.com/max5/vignettes/js/jstaskobject.html
 	*/
 
 	functionToDo.task=this;
