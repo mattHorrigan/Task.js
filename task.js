@@ -62,7 +62,7 @@ function Task(functionToDo,theThis,...argumentsToInnerFunction){
 	}
 
 	this.execute=function(){
-		this.function(...this.arguments);
+		this.function.call(this.object,...this.arguments);
 	}
 
 	this.cancel=function(){
