@@ -86,8 +86,6 @@ function Task(functionToDo,theThis,...argumentsToInnerFunction){
 					this.iterations+=1;
 					this.execute();
 
-					console.log(this.iterations);
-
 					//i don't totally understand "bind()", but that's what solved this
 					this.theRepetitionTimeout=setTimeout(this.theTaskForRepeating.bind(this),this.interval);
 				}else{ //bear in mind that it will never reach this case if it was called without an iterations number supplied
@@ -95,7 +93,6 @@ function Task(functionToDo,theThis,...argumentsToInnerFunction){
 				}
 			}else{
 				clearTimeout(this.theRepetitionTimeout);
-				console.log("i am here");
 			}
 		}
 
