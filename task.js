@@ -3,15 +3,14 @@ function Task(functionToDo,theThis,...argumentsToInnerFunction){
 	/*
 		this function emulates the Task object implemented in Max/MSP javascript
 		so that you can write javascript for use timing events in either browser or Max/MSP platforms
-		
-		for documentation of how the Task object works in Max/MSP, go to https://docs.cycling74.com/max5/vignettes/js/jstaskobject.html
 	*/
+
+	this.theSimpleDelayTimeout;
+	this.theRepetitionTimeout;
 
 	functionToDo.task=this;
 	this.arguments=argumentsToInnerFunction;
 	
-	this.theTimeoutsInProgress=[];//this property isn't in the specification, but i added it because i couldn't think of another way to manage this.cancel();
-
 	this.getArguments=function(){
 		return this.arguments;
 	}
@@ -67,46 +66,46 @@ function Task(functionToDo,theThis,...argumentsToInnerFunction){
 	}
 
 	this.cancel=function(){
-		for(i=0;i<this.theTimeoutsInProgress.length;i++){
-			clearTimeout(this.theTimeoutsInProgress.pop());
-		}
-		this.running=0;
+		//these don't actually work, and i don't know why.  It's the this.running flag that makes the difference, as per the spec.
+		clearTimeout(this.theSimpleDelayTimeout);
+		clearTimeout(this.theRepetitionTimeout);
+
+		this.running=false;
+		this.iterations=0;
 	}
 
 	this.repeat=function(number=Infinity,initialDelay=0){
-		this.cancel();
 		this.iterations=0;
 		this.running=true;
 
 		var theNumberOfTimesToRepeat=number;
-		var functionHolderVariable;
 
 		this.theTaskForRepeating=function(){
+			if(this.running){
+				if(this.iterations<theNumberOfTimesToRepeat){		
+					this.iterations+=1;
+					this.execute();
 
-			if(this.iterations<theNumberOfTimesToRepeat){
-				this.iterations+=1;
-				this.execute();
+					console.log(this.iterations);
 
-				console.log(this.iterations);
-
-				//i don't totally understand "bind()", but that's what solved this
-				this.theTimeoutsInProgress.push(setTimeout(this.theTaskForRepeating.bind(this),this.interval));
+					//i don't totally understand "bind()", but that's what solved this
+					this.theRepetitionTimeout=setTimeout(this.theTaskForRepeating.bind(this),this.interval);
+				}else{ //bear in mind that it will never reach this case if it was called without an iterations number supplied
+					this.cancel();
+				}
 			}else{
-				this.running=false;
-				this.iterations=0;
+				clearTimeout(this.theRepetitionTimeout);
+				console.log("i am here");
 			}
 		}
 
-		functionHolderVariable=this.theTaskForRepeating;
-
 		if(this.iterations<theNumberOfTimesToRepeat){
-			this.theTimeoutsInProgress.push(setTimeout(this.theTaskForRepeating(),initialDelay));
+			this.theSimpleDelayTimeout=setTimeout(this.theTaskForRepeating(),initialDelay);
 		}
 
 	}
 
 	this.schedule=function(delay=0){
 		this.repeat(1,delay);
-		this.running=true;
 	}
 }
